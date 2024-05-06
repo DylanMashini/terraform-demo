@@ -1,0 +1,13 @@
+/* Write your global styles here, in PostCSS syntax */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Show root component when tailwind styles are fully loaded */
+.root {
+    display: block !important;
+}
+
+.bg-muted {
+    background-color: hsl(240 4.8% 95.9%);
+}

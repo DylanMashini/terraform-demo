@@ -1,4 +1,4 @@
-use poem::{get, handler, post, web::{Data, Path}, RequestBody, Route};
+use poem::{handler, post, Route};
 use poem_lambda::{run, Error};
 use serde::{Deserialize, Serialize};
 
@@ -15,13 +15,13 @@ struct AuthUserResponse {
 #[handler]
 fn create_chat(body: poem::web::Json<AuthUserRequest>) -> poem::web::Json<AuthUserResponse> {
     poem::web::Json(AuthUserResponse {
-        token: body.user_id.clone()
+        token: body.user_id.clone(),
     })
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Error>{
-    println!("AHHHHHHHHH");
+    println!("AHHHH");
     let app = Route::new().at("/auth-user", post(create_chat));
     run(Route::new().nest("/prod", app)).await
 }
