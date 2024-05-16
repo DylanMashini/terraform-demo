@@ -16,7 +16,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: cargo-bins/cargo-binstall@main
     - name: Install Cargo Lambda
-      run: cargo binstall cargo-lambda
+      run: cargo binstall cargo-lambda --no-confirm
     - name: Build Backend
       run: cargo lambda build --release -o zip --manifest-path="backend/Cargo.toml"
     - name: Build Frontend
