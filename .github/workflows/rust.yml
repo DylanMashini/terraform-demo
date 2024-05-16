@@ -1,0 +1,30 @@
+name: Build & Deploy
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install Cargo Lambda
+      run: brew tap cargo-lambda/cargo-lambda && brew install cargo-lambda
+    - name: Build Backend
+      run: cargo lambda build --release -o zip --manifest-path="backend/Cargo.toml"
+    - name: Build Frontend
+      run: pnpm install -C "plugin" && pnpm run build -C "plugin"
+    - name: Deploy using Terraform
+      env: 
+        HMAC_SECRET: ${{ secrets.HMAC_SECRET }}
+        AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+        AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      run: terraform apply -auto-approve
+      
