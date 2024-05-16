@@ -1,4 +1,13 @@
 terraform {
+
+  backend "s3" {
+    bucket = "chat-plugin-terraform-state"
+    key = "global/s3/terraform.tfstate"
+    region = "us-east-1"
+    dynamodb_table = "chat-plugin-terraform-state-lock"
+    encrypt = true
+  }
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
