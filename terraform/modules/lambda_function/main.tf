@@ -5,7 +5,7 @@ resource "aws_lambda_function" "lambda" {
   handler          = "bootstrap"
   function_name    = each.value
   role             = var.role
-  source_code_hash = filebase64sha256(format("../backend/target/lambda/%s/bootstrap", each.value))
+  source_code_hash = filebase64sha256(format("../backend/target/lambda/%s/bootstrap.zip", each.value))
   environment {
     variables = var.env_vars
   }
