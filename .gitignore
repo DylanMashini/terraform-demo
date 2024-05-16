@@ -1,6 +1,7 @@
 backend/target
-/volume
-/.terraform
+terraform/.terraform
 *.tfstate
 *.tfstate.*
+*.tfvars
 */node_modules/
+.env
