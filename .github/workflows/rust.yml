@@ -25,7 +25,7 @@ jobs:
     - name: Build Backend
       run: cargo lambda build --release -o zip --manifest-path="backend/Cargo.toml"
     - name: Build Frontend
-      run: pnpm install -C "plugin" && pnpm run build -C "plugin"
+      run: pnpm install -C "plugin" && pnpm run -C "plugin" build
     - name: Deploy using Terraform
       env: 
         HMAC_SECRET: ${{ secrets.HMAC_SECRET }}
