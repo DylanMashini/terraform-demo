@@ -19,6 +19,9 @@ jobs:
       run: cargo binstall cargo-lambda --no-confirm
     - name: Install Zig
       run: sudo snap install zig --classic --beta
+    - uses: pnpm/action-setup@v4
+      with:
+        version: 8
     - name: Build Backend
       run: cargo lambda build --release -o zip --manifest-path="backend/Cargo.toml"
     - name: Build Frontend
