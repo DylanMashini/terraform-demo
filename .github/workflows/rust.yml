@@ -14,8 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+    - uses: cargo-bins/cargo-binstall@main
     - name: Install Cargo Lambda
-      run: brew tap cargo-lambda/cargo-lambda && brew install cargo-lambda
+      run: cargo binstall cargo-lambda
     - name: Build Backend
       run: cargo lambda build --release -o zip --manifest-path="backend/Cargo.toml"
     - name: Build Frontend
