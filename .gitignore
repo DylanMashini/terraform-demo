@@ -4,4 +4,3 @@ terraform/.terraform
 *.tfstate.*
 *.tfvars
 */node_modules/
-.env

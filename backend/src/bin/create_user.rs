@@ -108,6 +108,6 @@ async fn create_user(body: poem::web::Json<CreateUserParams>) -> impl IntoRespon
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    let app = Route::new().at("/create-user", post(create_user));
+    let app = Route::new().at("/*", post(create_user));
     run(Route::new().nest("/prod", app)).await
 }

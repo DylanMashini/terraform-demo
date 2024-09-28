@@ -3,7 +3,7 @@ use openai_api_rs::v1::api::Client;
 use openai_api_rs::v1::chat_completion::{self, ChatCompletionMessage, ChatCompletionRequest};
 use openai_api_rs::v1::common::GPT3_5_TURBO;
 use poem::http::StatusCode;
-use poem::{handler, post, EndpointExt, IntoResponse, Route, web::Json};
+use poem::{handler, post, web::Json, EndpointExt, IntoResponse, Route};
 use poem_lambda::{run, Error};
 use serde::{Deserialize, Serialize};
 use std::env;
@@ -34,9 +34,7 @@ enum Response {
 }
 
 #[handler]
-async fn create_chat(
-    body: poem::web::Json<CreateChatParams>,
-) -> impl IntoResponse {
+async fn create_chat(body: poem::web::Json<CreateChatParams>) -> impl IntoResponse {
     let config = aws_config::load_defaults(aws_config::BehaviorVersion::latest()).await;
     let db_client = DBClient::new(&config);
 
@@ -59,9 +57,12 @@ async fn create_chat(
 
     let partial_db_tbl = match db_res.items().get(0).clone() {
         Some(x) => x,
-        None => return Json(Response::Error(EndpointError {
-            message: "API Key Invalid".to_string()
-        })).with_status(StatusCode::UNAUTHORIZED)
+        None => {
+            return Json(Response::Error(EndpointError {
+                message: "API Key Invalid".to_string(),
+            }))
+            .with_status(StatusCode::UNAUTHORIZED)
+        }
     };
 
     let user_id = partial_db_tbl
@@ -102,14 +103,14 @@ async fn create_chat(
 
     Json(Response::Successful(CreateChatResponse {
         response: res.unwrap().choices[0].message.content.clone().unwrap(),
-    })).with_status(StatusCode::OK)
-
+    }))
+    .with_status(StatusCode::OK)
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
     let app = Route::new()
-        .at("/create-chat", post(create_chat))
+        .at("/*", post(create_chat))
         .with(poem::middleware::Cors::new());
     run(Route::new().nest("/prod", app)).await
 }

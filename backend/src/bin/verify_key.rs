@@ -1,8 +1,5 @@
 use aws_config::BehaviorVersion;
-use aws_sdk_dynamodb::{
-    types::AttributeValue,
-    Client,
-};
+use aws_sdk_dynamodb::{types::AttributeValue, Client};
 use poem::{handler, post, web::Json, Route};
 use poem_lambda::{run, Error};
 use serde::{Deserialize, Serialize};
@@ -22,19 +19,25 @@ struct VerifyKeyResponse {
 
 #[handler]
 async fn create_user(body: poem::web::Json<VerifyKeyRequest>) -> Json<VerifyKeyResponse> {
-    let public_key = body.public_key.strip_prefix("pk_").expect("Public Key should have pk_prefix").to_string();
+    let public_key = body
+        .public_key
+        .strip_prefix("pk_")
+        .expect("Public Key should have pk_prefix")
+        .to_string();
 
-    let secret_key = body.secret_key.strip_prefix("sk_").expect("Secret Key should start with sk_ prefix").to_string();
+    let secret_key = body
+        .secret_key
+        .strip_prefix("sk_")
+        .expect("Secret Key should start with sk_ prefix")
+        .to_string();
 
-    let valid_key = verify_key(public_key.clone(), secret_key)
-        .await
-        .unwrap();
+    let valid_key = verify_key(public_key.clone(), secret_key).await.unwrap();
 
     if !valid_key {
         return Json(VerifyKeyResponse {
             valid: valid_key,
             user_id: None,
-        })
+        });
     }
 
     let config = aws_config::load_defaults(BehaviorVersion::latest()).await;
@@ -55,7 +58,7 @@ async fn create_user(body: poem::web::Json<VerifyKeyRequest>) -> Json<VerifyKeyR
             return Json(VerifyKeyResponse {
                 valid: true,
                 user_id: None,
-            })
+            });
         }
     };
 
@@ -75,6 +78,6 @@ async fn create_user(body: poem::web::Json<VerifyKeyRequest>) -> Json<VerifyKeyR
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    let app = Route::new().at("/verify-key", post(create_user));
+    let app = Route::new().at("/*", post(create_user));
     run(Route::new().nest("/prod", app)).await
 }
