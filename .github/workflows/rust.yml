@@ -24,8 +24,10 @@ jobs:
         version: 8
     - name: Build Backend
       run: cargo lambda build --release -o zip --manifest-path="backend/Cargo.toml"
-    - name: Build Frontend
+    - name: Build Plugin
       run: pnpm install -C "plugin" && pnpm run -C "plugin" build
+    - name: Build Demo Website
+      run: pnpm install -C "website" && pnpm run -C "website" build
     - name: Deploy using Terraform
       env: 
         TF_VAR_HMAC_SECRET: ${{ secrets.HMAC_SECRET }}
@@ -34,5 +36,7 @@ jobs:
         TF_VAR_AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
         TF_VAR_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        TF_VAR_CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        TF_VAR_CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
       run: cd terraform && terraform init && terraform apply -auto-approve
       
