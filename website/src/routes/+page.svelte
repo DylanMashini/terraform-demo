@@ -28,7 +28,6 @@
           class="mx-auto grid max-w-5xl items-center gap-6 py-12 lg:grid-cols-2 lg:gap-12"
         >
           <img
-            src="/placeholder.svg"
             width="550"
             height="310"
             alt="AI Features"

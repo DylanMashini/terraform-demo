@@ -1,11 +1,5 @@
-
 resource "aws_api_gateway_rest_api" "backend_api" {
   name = "Backend API"
-}
-
-output "rest_api" {
-  description = "Rest API"
-  value       = aws_api_gateway_rest_api.backend_api
 }
 
 # API Gateway Resource for each Lambda function
@@ -35,9 +29,6 @@ module "cors" {
 }
 
 
-
-
-
 # Lambda Permission for API Gateway to invoke the function
 resource "aws_lambda_permission" "lambda_permission" {
   for_each      = module.lambda_functions.function_names
@@ -63,11 +54,12 @@ resource "aws_api_gateway_deployment" "api_deployment" {
   rest_api_id = aws_api_gateway_rest_api.backend_api.id
 
   triggers = {
-    redeployment = jsonencode(module.lambda_functions)
+    redeployment = timestamp()
   }
 
   lifecycle {
     create_before_destroy = true
+    ignore_changes        = [triggers]
   }
 }
 
@@ -77,3 +69,21 @@ resource "aws_api_gateway_stage" "example" {
   stage_name    = "prod"
 }
 
+resource "aws_api_gateway_domain_name" "gateway_domain_name" {
+    certificate_arn = aws_acm_certificate_validation.api_certificate_verification.certificate_arn
+    domain_name = "api.demo.dylanmashini.com"
+}
+
+resource "cloudflare_record" "api_dns_record" {
+    name = "api.demo"
+    type = "CNAME"
+    zone_id = var.CLOUDFLARE_ZONE_ID
+    content = aws_api_gateway_domain_name.gateway_domain_name.cloudfront_domain_name
+    comment = "Managed by terraform"
+}
+
+resource "aws_api_gateway_base_path_mapping" "example" {
+  api_id      = aws_api_gateway_rest_api.backend_api.id
+  stage_name  = aws_api_gateway_stage.example.stage_name
+  domain_name = aws_api_gateway_domain_name.gateway_domain_name.domain_name
+}

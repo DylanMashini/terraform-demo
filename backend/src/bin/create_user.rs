@@ -10,8 +10,8 @@ use poem::{handler, http::StatusCode, post, web::Json, IntoResponse, Route};
 use poem_lambda::{run, Error};
 use serde::{Deserialize, Serialize};
 use sha2::Sha256;
-use uuid::Uuid;
 use utils::EndpointError;
+use uuid::Uuid;
 
 type HmacSha256 = Hmac<Sha256>;
 
@@ -27,7 +27,6 @@ struct CreateUserResponse {
     public_api_key: String,
     secret_api_key: String,
 }
-
 
 #[derive(Debug, Serialize)]
 #[serde(untagged)]
@@ -56,8 +55,14 @@ async fn add_user(
     match response {
         Ok(x) => Ok(x),
         Err(e) => match e.into_service_error() {
-            PutItemError::ConditionalCheckFailedException(_) => Err(("User with ID Already Exists".to_string(), StatusCode::CONFLICT)),
-            _ => Err(("Internal Server Error Adding to DB".to_string(), StatusCode::INTERNAL_SERVER_ERROR)),
+            PutItemError::ConditionalCheckFailedException(_) => Err((
+                "User with ID Already Exists".to_string(),
+                StatusCode::CONFLICT,
+            )),
+            _ => Err((
+                "Internal Server Error Adding to DB".to_string(),
+                StatusCode::INTERNAL_SERVER_ERROR,
+            )),
         },
     }
 }
@@ -88,9 +93,9 @@ async fn create_user(body: poem::web::Json<CreateUserParams>) -> impl IntoRespon
     .await
     {
         Ok(_) => (),
-        Err(error) => return Json(Response::Error(EndpointError {
-            message: error.0
-        })).with_status(error.1),
+        Err(error) => {
+            return Json(Response::Error(EndpointError { message: error.0 })).with_status(error.1)
+        }
     };
 
     Json(Response::Successful(CreateUserResponse {
